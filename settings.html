@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Settings</title>
+  <link type="text/css" rel="stylesheet" href="../assessment-common/settings.css">
+  <link rel="stylesheet" href="./settings.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/cash/8.1.5/cash.min.js"></script>
+  <script type="text/javascript" src="../assessment-common/helper.js"></script>
+  <script type="text/javascript" src="./settings.js"></script>
+</head>
+<body>
+<div id="settings-content" class="codio-assessment-settings-content">
+  <div class="codio-assessment-settings-row">
+    <label for="instructions" class="codio-assessment-settings-form-label">Instructions</label>
+    <textarea id="instructions" name="instructions" rows="4" class="form-input"></textarea>
+  </div>
+  <div class="codio-assessment-settings-row">
+    <div class="form-toggle-container">
+      <label for="shuffle-answers" class="codio-assessment-settings-form-label">Shuffle answers</label>
+      <label class="codio-assessment-settings-form-toggle-switch">
+        <input type="checkbox" id="shuffle-answers">
+        <span class="codio-assessment-settings-form-toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+  <div class="codio-assessment-settings-row">
+    <div class="form-toggle-container">
+      <label for="multiple-response" class="codio-assessment-settings-form-label">Multiple Response</label>
+      <label class="codio-assessment-settings-form-toggle-switch">
+        <input type="checkbox" id="multiple-response">
+        <span class="codio-assessment-settings-form-toggle-slider"></span>
+      </label>
+    </div>
+  </div>
+  <div class="codio-assessment-settings-row">
+    <div class="answers-container">
+      <button id="add-answer" class="form-button">Add answer</button>
+      <div class="answer-list"></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
