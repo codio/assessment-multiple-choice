@@ -24,11 +24,6 @@
     return result.current
   }
 
-  const updateProcessing = (status) => {
-    processing = status
-    updateAnswersAndFooter()
-  }
-
   const applyStateInitial = (data) => {
     const {state, result, ...dataWithoutState} = data
     assessment = dataWithoutState.assessment
@@ -61,6 +56,36 @@
 
   const renderAnswers = () => {
     const answersBlock = $('.codio-assessment-answers')
+
+    const {isRandomized, multipleResponse} = assessment.source.settings
+    let answers = assessment.source.settings.answers
+    if (isRandomized) {
+      const projectId = assessmentOptions.eduStartedAssignment?.started?.projectId
+      answers = window.multipleChoiceAssessment.shuffle(answers, `${projectId || RANDOM_SEED}-${taskId}`)
+    }
+
+    const inputType = multipleResponse ? 'checkbox' : 'radio'
+
+    answers.forEach((answer) => {
+      const id = answer._id
+
+      const classes = [`codio-assessment-mcq-answer codio-assessment-mcq-answer-${inputType}`]
+
+      const answerEl = $(`<div class="${classes.join(' ')}"></div>`)
+      const inputEl = $(`<input id="${id}" type="${inputType}" name="${taskId}" value="${id}" class="codio-assessment-mcq-answer-input" />`)
+      answerEl.append(inputEl)
+      const labelEl = $(`<label for="${id}" class="codio-assessment-mcq-answer-input-label"></label>`)
+      labelEl.on('keydown', handleEnter.bind(null, onClick.bind(null, id)))
+      const inputIndicatorEl = $('<div class="codio-assessment-mcq-answer-input-indicator"></div>')
+      labelEl.append(inputIndicatorEl)
+      const answerTextEl = $(`<div class="codio-assessment-mcq-answer-text"></div>`).html(answer.answer)
+      labelEl.append(answerTextEl)
+      answerEl.append(labelEl)
+      answersBlock.append(answerEl)
+    })
+  }
+
+  const updateAnswers = () => {
     const assessmentState = getAssessmentState()
     const valueFromState = getInitialValue()
     let value = valueFromState
@@ -70,7 +95,6 @@
 
     const disableResponse = assessmentOptions.isDisabled || assessmentOptions.showUnblock || assessmentState.answered &&
       (!assessmentState.canAnswerAgain || assessmentState.answerFullyCorrect)
-    const {isRandomized, multipleResponse} = assessment.source.settings
     const showExpectedAnswer = window.codioAssessmentsHelper.calculateShowExpectedAnswer(
       assessmentOptions.eduStartedAssignment,
       assessment.source.showExpectedAnswerOption
@@ -78,51 +102,31 @@
     const {result} = currentData || {}
     const showAnswer = assessmentState.showAsTeacher || showExpectedAnswer
     const expectedAnswer = result && showAnswer && (result.right || assessment.source.expectedAnswerIds)
-    let answers = assessment.source.settings.answers
-    if (isRandomized) {
-      const projectId = assessmentOptions.eduStartedAssignment?.started?.projectId
-      answers = window.multipleChoiceAssessment.shuffle(answers, `${projectId || RANDOM_SEED}-${taskId}`)
-    }
 
-    const inputType = multipleResponse ? 'checkbox' : 'radio'
-
-    answers.forEach((answer, index) => {
-      const id = answer._id
-      let checked = Array.isArray(value) ? value.includes(id) : value === id
-
-      const classes = [`codio-assessment-mcq-answer codio-assessment-mcq-answer-${inputType}`]
-
+    const answerEls = $('.codio-assessment-mcq-answer')
+    answerEls.each((index, answerElRaw) => {
+      const answerEl = $(answerElRaw)
+      const inputEl = answerEl.find('.codio-assessment-mcq-answer-input')
+      const id = inputEl.val()
       let ok, wrong
-      if (disableResponse && expectedAnswer?.right) {
+      if (disableResponse && expectedAnswer) {
         ok = expectedAnswer.includes(id)
-        ok && classes.push('codio-assessment-mcq-answer-ok')
-        if (Array.isArray(expectedAnswer.right) && expectedAnswer.right.length > 0) {
+        if (Array.isArray(expectedAnswer) && expectedAnswer.length > 0) {
           wrong = !ok
-          wrong && classes.push('codio-assessment-mcq-answer-wrong')
         }
       }
 
-      const answerEl = $(`<div class="${classes.join(' ')}"></div>`)
-      const inputEl = $(`<input id="${id}" type="${inputType}" name="${taskId}" value="${id}" />`)
+      let checked = Array.isArray(value) ? value.includes(id) : value === id
+
+      answerEl.removeClass('codio-assessment-mcq-answer-ok codio-assessment-mcq-answer-wrong')
       inputEl.prop('checked', checked)
       inputEl.prop('disabled', disableResponse)
-      answerEl.append(inputEl)
-      const labelEl = $(`<label for="${id}"></label>`)
-      labelEl.on('keydown', handleEnter.bind(null, onClick.bind(null, id)))
-      const inputIndicatorEl = $('<div class="codio-assessment-mcq-answer-input-indicator"></div>')
-      labelEl.append(inputIndicatorEl)
+
+      const inputIndicatorEl = answerEl.find('.codio-assessment-mcq-answer-input-indicator')
+      inputIndicatorEl.empty()
       const icon = disableResponse ? getAnswerIcon(ok, wrong) : null
       icon && inputIndicatorEl.append(icon)
-      const answerTextEl = $(`<div class="codio-assessment-mcq-answer-text"></div>`).html(answer.answer)
-      labelEl.append(answerTextEl)
-      answerEl.append(labelEl)
-      answersBlock.append(answerEl)
     })
-  }
-
-  const updateAnswers = () => {
-    console.log('updateAnswers')
-    const assessmentState = getAssessmentState()
   }
 
   const applyState = (data) => {
@@ -132,25 +136,25 @@
       applyStateInitial(data)
       return
     }
-    if (data.state) {
-      updateAnswersAndFooter()
-      renderGuidance()
-      return
-    }
-    // reset
-    if (currentData.state && !data.state) {
-      updateAnswersAndFooter()
-      renderGuidance()
-    }
+    updateCheckButtonText()
+    updateAnswersAndFooter()
+    renderGuidance()
+  }
+
+  const getValue = () => {
+    const value = $('.codio-assessment-mcq-answer input:checked').map((_, el) => el.value).get()
+    const {multipleResponse} = assessment.source.settings
+    return !multipleResponse ? value[0] : value
   }
 
   const onCheck = (event) => {
     event.preventDefault()
-    updateProcessing(true)
+    processing = true
+    updateAnswersAndFooter()
 
-    // todo add answer
     window.codioAssessmentsHelper.send(
-      window.codioAssessmentsHelper.METHODS.SUBMIT_ANSWER
+      window.codioAssessmentsHelper.METHODS.SUBMIT_ANSWER,
+      {result: getValue()}
     )
   }
 
@@ -179,7 +183,7 @@
     const checkVisibility = !showModify && assessmentOptions.useSubmitButtons
     const checkBtn = $('.check-button')
     updateVisibility(checkBtn, checkVisibility)
-    checkBtn.attr('disabled', isDisabled)
+    checkBtn.prop('disabled', isDisabled)
 
     const unblockVisibility = !teacherInStudentsProject && showModify
     updateVisibility($('.unblock-button'), unblockVisibility)
@@ -189,9 +193,14 @@
     updateVisibility($('.reset-button'), resetVisibility)
   }
 
-  const renderFooter = () => {
+  const updateCheckButtonText = () => {
     const footerContainer = $('.codio-assessment-footer')
-    const caption = window.codioAssessmentsHelper.getButtonCaption(assessmentOptions, assessment.source.maxAttemptsCount)
+    const {result} = currentData || {}
+    const caption = window.codioAssessmentsHelper.getButtonCaption(
+      assessmentOptions,
+      assessment.source.maxAttemptsCount,
+      result?.usedAttempts || 0
+    )
     footerContainer.find('.check-button').html(caption)
   }
 
@@ -244,7 +253,7 @@
     const answerFullyCorrect = answered && isAnswerFullyCorrect(result, assessment.source)
     const usedAttempts = result?.usedAttempts
     const canAnswerAgain = !assessment.source.maxAttemptsCount || usedAttempts < assessment.source.maxAttemptsCount
-    const isDisabled = assessmentOptions.isDisabled || processing || isSomethingChecked() ||
+    const isDisabled = assessmentOptions.isDisabled || processing || !isSomethingChecked() ||
       answered && (!canAnswerAgain || answerFullyCorrect)
     const showModify = assessmentOptions.showUnblock && !answered
     const teacherInStudentsProject = assessmentOptions.showAsTeacher && !assessmentOptions.owner
@@ -269,23 +278,31 @@
     updateFooterButtons()
   }
 
+  const onInputChange = () => {
+    updateFooterButtons()
+    window.codioAssessmentsHelper.send(
+      window.codioAssessmentsHelper.METHODS.SET_STATE, {state: {active: getValue()}}
+    )
+  }
+
   const bindEvents = () => {
     $('.check-button').on('click', onCheck)
     $('.unblock-button').on('click', onUnblock)
     $('.reset-button').on('click', onReset)
+    $('.codio-assessment-mcq-answer input').on('change', onInputChange)
 
     window.codioAssessmentsHelper.addBodyHeightListener()
   }
 
   const render = () => {
-    debugger
     const container = $('.codio-assessment')
     const nameEl = container.find('.codio-assessment-name')
     assessment.source.showName ? nameEl.text(assessment.source.name) : nameEl.remove()
     renderContent()
-    renderFooter()
+    updateCheckButtonText()
     renderGuidance()
     renderAnswers()
+    updateAnswers()
     updateFooterButtons()
     bindEvents()
     container.removeClass('hide')
@@ -300,7 +317,7 @@
           window.codioAssessmentsHelper.addStyle(data.css)
           break
         case window.codioAssessmentsHelper.METHODS.GET_STATE_RESPONSE:
-          updateProcessing(false)
+          processing = false
           applyState(data)
           break
         case window.codioAssessmentsHelper.METHODS.CALLBACK: {
