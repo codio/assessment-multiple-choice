@@ -47,7 +47,11 @@
     if (!ok && !wrong) {
       return null
     }
-    const iconContainer = $('<div class="codio-assessment-mcq-answer-icon"></div>')
+    const baseClass = 'codio-assessment-mcq-answer-icon'
+    const classes = [baseClass]
+    ok && classes.push(`${baseClass}-ok`)
+    wrong && classes.push(`${baseClass}-wrong`)
+    const iconContainer = $(`<div class="${classes.join(' ')}"></div>`)
     const {FAILED, PASSED} = window.codioAssessmentsHelper.RESULT_STATUS
     const icon = $(window.codioAssessmentsHelper.getIconByResultStatus(ok ? PASSED : FAILED))
     iconContainer.append(icon)
@@ -72,7 +76,7 @@
       const classes = [`codio-assessment-mcq-answer codio-assessment-mcq-answer-${inputType}`]
 
       const answerEl = $(`<div class="${classes.join(' ')}"></div>`)
-      const inputEl = $(`<input id="${id}" type="${inputType}" name="${taskId}" value="${id}" class="codio-assessment-mcq-answer-input" />`)
+      const inputEl = $(`<input id="${id}" type="${inputType}" name="${taskId}" value="${id}" class="codio-assessment-mcq-answer-input visuallyhidden" />`)
       answerEl.append(inputEl)
       const labelEl = $(`<label for="${id}" class="codio-assessment-mcq-answer-input-label"></label>`)
       labelEl.on('keydown', handleEnter.bind(null, onClick.bind(null, id)))

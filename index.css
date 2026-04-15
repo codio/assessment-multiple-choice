@@ -1,0 +1,60 @@
+.codio-assessment-answers {
+  padding: 1em 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.codio-assessment-mcq-answer-input-label {
+  display: flex;
+  gap: 10px;
+}
+
+.codio-assessment-mcq-answer-input-indicator {
+  background-color: #aaadbd;
+  border-radius: 2px;
+  height: 22px;
+  width: 22px;
+  position: relative;
+}
+
+.codio-assessment-mcq-answer-input-label:hover {
+  .codio-assessment-mcq-answer-input-indicator {
+    background-color: #797d92;
+  }
+}
+
+.codio-assessment-mcq-answer-checkbox {
+  .codio-assessment-mcq-answer-input:checked + .codio-assessment-mcq-answer-input-label .codio-assessment-mcq-answer-input-indicator {
+    background-image: url(./assets/images/checkmark.svg);
+    background-size: 60%;
+    background-color: #797d92;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+}
+
+.codio-assessment-mcq-answer-icon {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  left: -36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 100%;
+  color: white;
+}
+
+.codio-assessment-mcq-answer-icon svg {
+  width: 16px;
+  height: 16px;
+}
+
+.codio-assessment-mcq-answer-icon-ok {
+  background-color: #71b380;
+}
+
+.codio-assessment-mcq-answer-icon-wrong {
+  background-color: #da8181;
+}
