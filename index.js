@@ -85,9 +85,9 @@
     })
   }
 
-  const updateAnswers = () => {
+  const updateAnswers = (initialValue) => {
     const assessmentState = getAssessmentState()
-    const valueFromState = getInitialValue()
+    const valueFromState = initialValue || getValue()
     let value = valueFromState
     if (assessment.source.settings.multipleResponse && !Array.isArray(valueFromState)) {
       value = value ? [value] : []
@@ -302,7 +302,7 @@
     updateCheckButtonText()
     renderGuidance()
     renderAnswers()
-    updateAnswers()
+    updateAnswers(getInitialValue())
     updateFooterButtons()
     bindEvents()
     container.removeClass('hide')
