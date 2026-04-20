@@ -1,112 +1,3 @@
-.codio-assessment-settings-content {
-  display: flex;
-  gap: 10px;
-  flex-direction: column;
-}
-
-.codio-assessment-settings-row {
-  display: flex;
-  flex-direction: column;
-}
-
-.codio-assessment-settings-form-radio {
-  display: flex;
-  &:focus-within {
-    color: blue; /* focus  color */
-  }
-  input[type="radio"] {
-    -webkit-appearance: none;
-    appearance: none;
-    margin: 0;
-
-    font: inherit;
-    color: currentColor;
-    width: 1.15em;
-    height: 1.15em;
-    border: 0.15em solid currentColor;
-    border-radius: 50%;
-    transform: translateY(-0.075em);
-  }
-
-  input[type="radio"]::before {
-    content: "";
-    width: 0.65em;
-    height: 0.65em;
-    border-radius: 50%;
-    transform: scale(0);
-    transition: 120ms transform ease-in-out;
-    box-shadow: inset 1em 1em rebeccapurple; /* primary color */
-    background-color: CanvasText;
-    position: absolute;
-    top: 0.1em;
-    left: 0.1em;
-  }
-
-  input[type="radio"]:checked::before {
-    transform: scale(1);
-  }
-
-  input[type="radio"]:focus {
-    outline: max(2px, 0.15em) solid currentColor;
-    outline-offset: max(2px, 0.15em);
-  }
-}
-
-.codio-assessment-settings-form-toggle-switch {
-  position: relative;
-  display: inline-block;
-  width: 40px;
-  height: 22px;
-
-  input:checked + .codio-assessment-settings-form-toggle-slider {
-    background-color: #2196F3;
-  }
-
-  input:focus + .codio-assessment-settings-form-toggle-slider {
-    box-shadow: 0 0 4px #2196F3;
-  }
-
-  input:checked + .codio-assessment-settings-form-toggle-slider:before {
-    -webkit-transform: translateX(17px);
-    -ms-transform: translateX(17px);
-    transform: translateX(17px);
-  }
-}
-
-.codio-assessment-settings-form-toggle-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.codio-assessment-settings-form-toggle-slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
-  transition: .4s;
-  border-radius: 11px;
-}
-
-.codio-assessment-settings-form-toggle-slider:before {
-  position: absolute;
-  content: "";
-  height: 16px;
-  width: 16px;
-  left: 3px;
-  bottom: 3px;
-  background-color: white;
-  -webkit-transition: .4s;
-  transition: .4s;
-  border-radius: 50%;
-}
-
-/** **/
-
 .answers-container {
   display: flex;
   flex-direction: column;
@@ -125,9 +16,10 @@
 
 .answer-item {
   display: flex;
-  border: 1px solid grey;
+  border: 1px solid rgba(0, 0, 0, 0.6);
   padding: 10px;
   gap: 10px;
+  border-radius: 6px;
 
   .codio-assessment-settings-form-label {
     flex: 0 0 30px;
@@ -155,6 +47,7 @@
   flex-direction: column;
   gap: 6px;
   padding: 0 20px;
+  justify-content: space-around;
 
   .action-delete {
     color: red;
