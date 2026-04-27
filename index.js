@@ -158,7 +158,7 @@
 
     window.codioAssessmentsHelper.send(
       window.codioAssessmentsHelper.METHODS.SUBMIT_ANSWER,
-      {result: getValue()}
+      {result: {action: getValue()}}
     )
   }
 
