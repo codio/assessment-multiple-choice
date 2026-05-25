@@ -97,7 +97,7 @@
   }
 
   const renderIconButton = (className, icon, title) => {
-    return $(`<button type="button" title="${title}" aria-label="title" class="answer-item-action-button ${className}">
+    return $(`<button type="button" title="${title}" aria-label="${title}" class="answer-item-action-button ${className}">
 ${icon}
 </button>`)
   }
