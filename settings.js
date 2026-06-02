@@ -1,3 +1,5 @@
+import _ from "lodash";
+
 (function () {
   const ICONS = {
     UP: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M14 20h-4v-9l-3.5 3.5l-2.42-2.42L12 4.16l7.92 7.92l-2.42 2.42L14 11z"/></svg>',
@@ -16,6 +18,7 @@
   const getId = () => window.codioAssessmentsHelper.GUID()
 
   const collectSettings = () => {
+    const errors = []
     const instructions = $('#instructions').val()
     const multipleResponse = $('#multiple-response').is(':checked')
     const shuffleAnswers = $('#shuffle-answers').is(':checked')
@@ -28,7 +31,19 @@
       answers.push({_id: answerId, answer, correct})
     })
 
-    return {instructions, multipleResponse, shuffleAnswers, answers};
+    !instructions && errors.push('Instructions field must be completed');
+    if (answers.some((item) => item.answer === '')) {
+      errors.push('Answer field must be completed')
+    }
+    if (answers.length < 2) {
+      errors.push('There must be at least two answer fields completed')
+    }
+    const correctAnswerIsSet = answers.some((answer) => answer.correct)
+    if (!correctAnswerIsSet) {
+      errors.push('There must be at least one correct answer')
+    }
+
+    return {data: {instructions, multipleResponse, shuffleAnswers, answers}, errors};
   }
 
   const exportSettings = () => {
@@ -113,11 +128,13 @@ ${icon}
     const id = getId()
     correctContainer.append(`<label class="codio-assessment-settings-form-label" for="${id}">Correct</label>`)
     correctContainer.append(renderCorrectControl(id, false))
-    const answerContainer = $('<div class="answer-item-answer-container codio-assessment-settings-form-input-container"></div>')
+    const answerContainer = $('<div class="answer-item-answer-container"></div>')
     const taId = getId()
     answerContainer.append(`<label class="codio-assessment-settings-form-label" for="${taId}">Answer</label>`)
+    const answerTaWrapper = $('<div class="codio-assessment-settings-form-input-container"></div>')
     const answerTa = $(`<textarea class="answer-item-answer-ta codio-assessment-settings-form-input" id="${taId}" rows="3"></textarea>`)
-    answerContainer.append(answerTa)
+    answerTaWrapper.append(answerTa)
+    answerContainer.append(answerTaWrapper)
     answerItem.append(itemActionsContainer)
     answerItem.append(correctContainer)
     answerItem.append(answerContainer)
