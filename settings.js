@@ -1,6 +1,6 @@
-import _ from "lodash";
-
 (function () {
+  let instructionsEditor = null
+
   const ICONS = {
     UP: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M14 20h-4v-9l-3.5 3.5l-2.42-2.42L12 4.16l7.92 7.92l-2.42 2.42L14 11z"/></svg>',
     DOWN: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="currentColor" d="M10 4h4v9l3.5-3.5l2.42 2.42L12 19.84l-7.92-7.92L6.5 9.5L10 13z"/></svg>',
@@ -19,7 +19,7 @@ import _ from "lodash";
 
   const collectSettings = () => {
     const errors = []
-    const instructions = $('#instructions').val()
+    const instructions = instructionsEditor.getContent()
     const multipleResponse = $('#multiple-response').is(':checked')
     const shuffleAnswers = $('#shuffle-answers').is(':checked')
     const answers = []
@@ -53,7 +53,7 @@ import _ from "lodash";
 
   const applySettings = (settings = {}) => {
     multipleResponse = !!settings.multipleResponse
-    $('#instructions').val(settings.instructions || '');
+    instructionsEditor.setContent(settings.instructions || '')
     $('#multiple-response').prop('checked', settings.multipleResponse);
     $('#shuffle-answers').prop('checked', settings.shuffleAnswers);
     const answers = settings.answers || []
@@ -200,7 +200,7 @@ ${icon}
   const onLoad = async () => {
     window.codioAssessmentsHelper.registerMessageListener(processMessage)
     window.codioAssessmentsHelper.send(window.codioAssessmentsHelper.METHODS.GET_SETTINGS)
-
+    instructionsEditor = window.codioAssessmentsHelper.initializeMarkdownEditor('instructions', 'instructions-command-bar')
     bindEvents()
   }
 
